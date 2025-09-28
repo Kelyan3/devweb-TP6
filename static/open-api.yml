@@ -1,0 +1,39 @@
+openapi: 3.0.0
+info:
+  title: URL Shortener API
+  description: Service simple de réduction d'URL.
+  version: v1
+servers:
+  - url: http://localhost:8080/api-v1
+    description: API V1 (JSON)
+paths:
+  /:
+    get:
+      summary: Get link count
+      responses:
+        '200':
+          description: Nombre de liens créés.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  nb_links:
+                    type: integer
+                    example: 4
+    post:
+      summary: Create a short link
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                url:
+                  type: string
+                  format: url
+                  example: https://perdu.com
+      responses:
+        '201':
+          description: Lien créé

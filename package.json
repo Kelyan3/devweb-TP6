@@ -17,14 +17,19 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "cross-env NODE_ENV=development nodemon server-http.mjs",
-    "prod": "cross-env NODE_ENV=production node server-http.mjs"
+    "prod": "cross-env NODE_ENV=production node server-http.mjs",
+    "format": "prettier --write \"**/*.mjs\""
   },
   "dependencies": {
     "cross-env": "^10.0.0",
     "dotenv": "^17.2.2",
     "express": "^5.1.0",
     "http-errors": "^2.0.0",
-    "sqlite3": "^5.1.7"
+    "serve-favicon": "^2.5.1",
+    "sqlite": "^5.1.1",
+    "sqlite3": "^5.1.7",
+    "swagger-ui-express": "^5.0.1",
+    "yamljs": "^0.3.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.10"
