@@ -70,3 +70,7 @@ npm install package.json
 - `api-v2` : version avancée avec JSON et HTML.
 - `client-ajax` : version avec client AJAX
 - `api-v2-delete` : version avec suppression sécurisée
+
+## Render
+
+Lien vers Render : https://devweb-tp6-tfwr.onrender.com/
