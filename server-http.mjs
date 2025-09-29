@@ -8,6 +8,7 @@ import { fileURLToPath } from "url";
 import * as config from "./config.mjs";
 import { initiateDatabase } from "./database/database.mjs";
 import apiV1Router from "./router/api-v1.mjs";
+import apiV2Router from "./router/api-v2.mjs";
 
 const _fileName = fileURLToPath(import.meta.url);
 const _directoryName = path.dirname(_fileName);
@@ -23,7 +24,14 @@ try {
 const app = express();
 app.use(express.static("static"));
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(favicon(path.join(_directoryName, "static", "logo_univ_16.png")));
+
+app.set("view engine", "ejs");
+app.set("views", path.join(_directoryName, "views"));
+
+app.use("/api-v2", apiV2Router);
+
 app.disable("x-powered-by");
 
 if (swaggerDoc) {
