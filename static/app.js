@@ -20,12 +20,42 @@ document.getElementById("shorten-form").addEventListener("submit", async functio
         if (!response.ok) {
             resultDiv.innerHTML = `<p class="has-text-danger"><strong>Erreur :</strong> ${data.error || "Erreur inconnue"}</p>`;
         } else {
+            const shortUrl = data.short_url;
+            const secretKey = data.secret;
+
             resultDiv.innerHTML = `
-                <p><strong>Lien raccourci :</strong> <a class="has-text-info" href="http://localhost:8080/api-v2/${data.short_url}" target="_blank">http://localhost:8080/api-v2/${data.short_url}</a></p>
+                <p><strong>Lien raccourci :</strong> <a class="has-text-info" href="http://localhost:8080/api-v2/${shortUrl}" target="_blank">http://localhost:8080/api-v2/${shortUrl}</a></p>
                 <button class="button is-info" id="copy-btn">Copier l'URL</button>
+                <div style="margin-top:1em;">
+                    <input class="input" type="text" id="secret-key" placeholder="Clé secrète pour suppression" value="${secretKey}" style="max-width:200px;display:inline-block;" />
+                    <button class="button is-danger" id="delete-btn">Supprimer le lien</button>
+                </div>
+                <div id="delete-result" style="margin-top:0.5em;"></div>
             `;
             document.getElementById("copy-btn").addEventListener("click", () => {
-                navigator.clipboard.writeText(`http://localhost:8080/api-v2/${data.short_url}`);
+                navigator.clipboard.writeText(`http://localhost:8080/api-v2/${shortUrl}`);
+            });
+            document.getElementById("delete-btn").addEventListener("click", async () => {
+                const apiKey = document.getElementById("secret-key").value;
+                const urlPart = shortUrl.split("/").pop();
+                const delResult = document.getElementById("delete-result");
+                try {
+                    const delResponse = await fetch(originURL + "api-v2/" + urlPart, {
+                        method: "DELETE",
+                        headers: {
+                            "Accept": "application/json",
+                            "X-API-KEY": apiKey
+                        }
+                    });
+                    const delData = await delResponse.json();
+                    if (delResponse.ok) {
+                        delResult.innerHTML = `<p class="has-text-success"><strong>${delData.message}</strong></p>`;
+                    } else {
+                        delResult.innerHTML = `<p class="has-text-danger"><strong>Erreur :</strong> ${delData.error || "Erreur inconnue"}</p>`;
+                    }
+                } catch (error) {
+                    delResult.innerHTML = `<p class="has-text-danger"><strong>Erreur :</strong> ${error.message}</p>`;
+                }
             });
         }
     } catch (error) {

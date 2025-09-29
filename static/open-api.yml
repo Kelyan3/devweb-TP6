@@ -2,10 +2,16 @@ openapi: 3.0.0
 info:
   title: URL Shortener API
   description: Service simple de réduction d'URL.
-  version: v1
+  version: v2
 servers:
-  - url: http://localhost:8080/api-v1
-    description: API V1 (JSON)
+  - url: http://localhost:8080/api-v2
+    description: API V2 (JSON)
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-KEY
 paths:
   /:
     get:
@@ -44,7 +50,7 @@ paths:
                 properties:
                   short_url:
                     type: string
-                    example: abc123
+                    example: https://localhost:8080/api-v2/abc123
                   long_url:
                     type: string
                     example: https://perdu.com
@@ -53,9 +59,12 @@ paths:
                     format: date-time
                   idLink:
                     type: integer
+                  secret:
+                    type: string
+                    example: RatQak
   /{url}:
     get:
-      summary: Redirige vers l'URL longue et incrémente le compteur de visites
+      summary: Redirige vers l'URL longue et incrémente le compteur de visites (HTML) ou retourne les infos du lien (JSON)
       parameters:
         - name: url
           in: path
@@ -64,34 +73,17 @@ paths:
             type: string
       responses:
         '302':
-          description: Redirection vers l'URL longue
-        '404':
-          description: Lien non trouvé
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-  /status/{url}:
-    get:
-      summary: Récupère le nombre de visites pour un lien
-      parameters:
-        - name: url
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
+          description: Redirection vers l'URL longue (HTML)
         '200':
-          description: Nombre de visites du lien
+          description: Informations sur le lien (JSON)
           content:
             application/json:
               schema:
                 type: object
                 properties:
                   short_url:
+                    type: string
+                  long_url:
                     type: string
                   visit:
                     type: integer
@@ -104,3 +96,54 @@ paths:
                 properties:
                   error:
                     type: string
+    delete:
+      summary: Supprime un lien raccourci (nécessite la clé secrète)
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: url
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Lien supprimé
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Lien supprimé
+        '401':
+          description: Clé API manquante
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Clé API manquante
+        '403':
+          description: Clé API incorrecte
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Clé API incorrecte
+        '404':
+          description: Lien non trouvé
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Lien non trouvé

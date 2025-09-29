@@ -26,6 +26,11 @@ router.get("/", async (request, response) => {
     }
 });
 
+function generateSecretKey(len) {
+    const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    return Array.from({ length: len }, () => chars[Math.floor(Math.random() * chars.length)]).join("");
+}
+
 router.post("/", async (request, response) => {
     const { url } = request.body;
     if (!url || typeof url !== "string")
@@ -43,8 +48,9 @@ router.post("/", async (request, response) => {
             const result = await getDb().get("SELECT 1 FROM links WHERE shortUrl = ?", shortURL);
             found = !!result;
         }
-        const createdAt = new Date().toISOString();
-        const info = await getDb().run("INSERT INTO links (shortUrl, longUrl, createdAt, visit) VALUES (?, ?, ?, 0)", shortURL, url, createdAt);
+        const createdAt = new Date().toUTCString();
+        const secretKey = generateSecretKey(LINK_LEN);
+        const info = await getDb().run("INSERT INTO links (shortUrl, longUrl, createdAt, visit, secretKey) VALUES (?, ?, ?, 0, ?)", shortURL, url, createdAt, secretKey)
         const host = request.get("host");
         const baseUrl = `${request.protocol}://${host}/api-v2/`;
         const fullShortUrl = baseUrl + shortURL;
@@ -53,7 +59,8 @@ router.post("/", async (request, response) => {
                 short_url: shortURL,
                 long_url: url,
                 created_at: createdAt,
-                idLink: info.lastID
+                idLink: info.lastID,
+                secretKey
             }),
             "text/html": () => response.render("created", {
                 short_url: shortURL,
@@ -91,5 +98,21 @@ router.get("/:url", async (request, response) => {
         response.status(500).send("Internal Server Error");
     }
 });
+
+router.delete("/:url", async (request, response) => {
+    const shortUrl = request.params.url;
+    const link = await getLinkByShortUrl(shortUrl);
+    if (!link)
+        return response.status(404).json({ error: "Lien non trouvé" });
+
+    const apiKey = request.header("X-API-KEY");
+    if (!apiKey)
+        return response.status(401).json({ error: "Clé API manquante" });
+    if (apiKey !== link.secretKey)
+        return response.status(403).json({ error: "Clé API incorrecte" });
+
+    await getDb().run("DELETE FROM links WHERE shortUrl = ?", shortUrl);
+    response.status(200).json({ message: "Lien supprimé" });
+})
 
 export default router;

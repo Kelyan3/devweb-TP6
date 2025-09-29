@@ -4,5 +4,6 @@ CREATE TABLE IF NOT EXISTS links (
     shortUrl TEXT UNIQUE NOT NULL,
     longUrl TEXT NOT NULL,
     createdAt TEXT NOT NULL,
-    visit INTEGER DEFAULT 0
+    visit INTEGER DEFAULT 0,
+    secretKey TEXT UNIQUE
 );
