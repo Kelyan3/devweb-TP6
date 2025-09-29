@@ -10,6 +10,8 @@ import { initiateDatabase } from "./database/database.mjs";
 import apiV1Router from "./router/api-v1.mjs";
 import apiV2Router from "./router/api-v2.mjs";
 
+import cors from "cors";
+
 const _fileName = fileURLToPath(import.meta.url);
 const _directoryName = path.dirname(_fileName);
 
@@ -22,6 +24,8 @@ try {
 }
 
 const app = express();
+app.use(cors());
+
 app.use(express.static("static"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
