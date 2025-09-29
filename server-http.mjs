@@ -50,6 +50,10 @@ app.use((request, response, next) => {
     next();
 });
 
+app.get("/", (request, response) => {
+    response.sendFile(path.join(_directoryName, "static", "client.html"));
+})
+
 async function startServer() {
     await initiateDatabase();
     app.listen(config.PORT, () => {
