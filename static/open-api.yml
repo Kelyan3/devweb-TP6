@@ -37,3 +37,70 @@ paths:
       responses:
         '201':
           description: Lien créé
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  short_url:
+                    type: string
+                    example: abc123
+                  long_url:
+                    type: string
+                    example: https://perdu.com
+                  created_at:
+                    type: string
+                    format: date-time
+                  idLink:
+                    type: integer
+  /{url}:
+    get:
+      summary: Redirige vers l'URL longue et incrémente le compteur de visites
+      parameters:
+        - name: url
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '302':
+          description: Redirection vers l'URL longue
+        '404':
+          description: Lien non trouvé
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+  /status/{url}:
+    get:
+      summary: Récupère le nombre de visites pour un lien
+      parameters:
+        - name: url
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Nombre de visites du lien
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  short_url:
+                    type: string
+                  visit:
+                    type: integer
+        '404':
+          description: Lien non trouvé
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
