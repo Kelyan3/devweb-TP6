@@ -24,9 +24,7 @@ try {
 }
 
 const app = express();
-app.use(cors({
-    origin: "https://devweb-tp6-tfwr.onrender.com"
-}));
+app.use(cors());
 
 app.use(express.static("static"));
 app.use(express.json());
